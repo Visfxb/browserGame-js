@@ -1,23 +1,5 @@
 export class Tilesets{
     tilesets = []
-    constructor(tilseSize){
-        this.tileSize = tilseSize
-    }
-    add(src, id, firstGid, count) {
-        let img = new Image()
-        img.src = src
-
-        return new Promise(resolve => {
-            img.onload = () => {
-                this.tilesets.push({ img, id, firstGid, count })
-                resolve()
-            }
-        })
-    }
-    getTilesetById(id){
-        for (let i = 0; i < this.tilesets.length; i++)
-            if (this.tilesets[i].id === id) return this.tilesets[i]
-    }
 
     async init(json) {
         for (let i = 0; i < json.tilesets.length; i++) {
@@ -28,7 +10,6 @@ export class Tilesets{
             await new Promise(res => img.onload = res)
 
             this.tilesets.push({
-                id: i,
                 image: img,
                 firstgid: tileset.firstgid,
                 count: tileset.tilecount,

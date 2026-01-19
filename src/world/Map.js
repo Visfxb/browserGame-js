@@ -1,87 +1,92 @@
 
 export class Map{
-    map = []
+    chunks = []
 
     constructor(ctx){
         this.ctx = ctx
-        this.map = [
-            [
-                [[5, 0, 1], [0, 4, 3]], 
-                [[5, 0, 1], [0, 5, 5]], 
-                [[5, 0, 1], [0, 1, 2]], 
-                [[5, 0, 1], [0, 1, 2]]
-            ],
-
-            [
-                [[5, 0, 1], [0, 2, 1]], 
-                [[0, 1, 1]], 
-                [[1, 4, 1]], 
-                [[1, 1, 2]]
-            ],
-
-            [
-                [[5, 0, 1], [0, 2, 1]], 
-                [[0, 1, 1]], 
-                [[1, 2, 1]], 
-                [[4, 3, 0]]
-            ]
-        ]
     }
-    drawTile(img, tileIndexX, tileIndexY, toX, toY) {
 
-        let tileSize = 16
-        let newSize = 48    
-        this.ctx.drawImage(
-            img,
-            tileIndexX * tileSize, tileIndexY * tileSize,
-            tileSize, tileSize,
-            toX * newSize, toY * newSize,
-            newSize, newSize
-        )
-    }
-    drawMap(tilesets){
-        console.log(tilesets)
-        for (let i = 0; i < this.map.length; i++){
-            for (let j = 0; j < this.map[i].length; j++){
-                for (let k = 0; k < this.map[i][j].length; k++){
-                    let tile = this.map[i][j][k]
-                    this.drawTile(tilesets.getTilesetById(tile[0]).image, tile[1], tile[2], j, i)
+    async init(jsonMapSrc, tilesets){
+        const res = await fetch(jsonMapSrc)
+        const mapJson = await res.json()
+        await tilesets.init(mapJson)
+
+        const layers = mapJson.layers
+
+        for (let layerIndex = 0; layerIndex < layers.length; layerIndex++){
+            const layer = layers[layerIndex]
+
+            for (const chunk of layer.chunks){
+                let chunkIndex = this.chunks.findIndex(c => c.x === chunk.x && c.y === chunk.y)
+
+                // First layer
+                if (layerIndex === 0){
+                    const tiles = []
+
+                    for (let y = 0; y < chunk.height; y++){
+                        const row = []
+                        for (let x = 0; x < chunk.width; x++){
+                            const gid = chunk.data[y * chunk.width + x]
+                            const tile = tilesets.getTile(gid)
+                            row.push(tile ? new Tile(tile) : null)
+                        }
+                        tiles.push(row)
+                    }
+
+                    this.chunks.push(new Chunk(tiles, chunk.x, chunk.y))
+                }
+
+                // Upper layer
+                else{
+                    const targetChunk = this.chunks[chunkIndex]
+
+                    for (let y = 0; y < chunk.height; y++){
+                        for (let x = 0; x < chunk.width; x++){
+                            const gid = chunk.data[y * chunk.width + x]
+                            if (gid === 0) continue
+
+                            const tile = new Tile(tilesets.getTile(gid))
+                            const baseTile = targetChunk.tiles[y][x]
+
+                            if (baseTile === null)
+                                targetChunk.tiles[y][x] = tile
+                            else
+                                baseTile.addNextLayer(tile)
+                        }
+                    }
                 }
             }
         }
+        console.log(this.chunks)
     }
-    async init(jsonMapSrc, tilesets){
-        const res = await fetch(jsonMapSrc)
-        let mapJson = await res.json()
-        await tilesets.init(mapJson)
 
-        let map = []
-        let layers = mapJson.layers
-        // for (let i = 0; i < layers.length; i++){ // layers
-            for (let j = 0; j < layers[0].chunks.length; j++){ // chunks
-                let chunk = layers[0].chunks[j]
 
-                let tiles = []
-                for (let h = 0; h < chunk.height; h++){ // rows
-                    let row = []
-                    for (let w = 0; w < chunk.width; w++){ // cols
-                        let tileGid = chunk.data[h * chunk.height + w]
-                        if (tilesets.getTile(tileGid) !== null)
-                            row.push(new Tile(tilesets.getTile(tileGid)))
-                    }
-                    tiles.push(row)
+    drawMap() {
+        let tileSize = 16
+        let scale = 2
+
+        let minNegChunkX = 48
+        let minNegChunkY = 16
+
+        for (const chunk of this.chunks) {
+            for (let y = 0; y < chunk.tiles.length; y++) {
+                for (let x = 0; x < chunk.tiles[y].length; x++) {
+                    const tile = chunk.tiles[y][x]
+                    if (!tile) continue
+
+                    const worldX = (chunk.x + x + minNegChunkX) * tileSize * scale
+                    const worldY = (chunk.y + y + minNegChunkY) * tileSize * scale
+
+                    tile.drawTile(this.ctx, worldX, worldY, scale)
                 }
-
-                map.push(new Chunk(tiles, chunk.x, chunk.y))
-            } 
-        // }
-        console.log(map)
+            }
+        }
     }
 }
 
 export class Chunk {
     constructor(tiles, x, y) {
-        this.x = x        // может быть отрицательным
+        this.x = x        // Can be negative
         this.y = y
         this.tiles = tiles
     }
@@ -95,5 +100,24 @@ export class Tile {
         this.sy = sy
         this.width = width
         this.height = height
+        this.upperTile = null
+    }
+    addNextLayer(upperTile){
+        this.upperTile = upperTile
+    }
+    drawTile(ctx, x, y, scale){
+        ctx.drawImage(
+            this.image,
+            this.sx,
+            this.sy,
+            this.width,
+            this.height,
+            x,
+            y,
+            this.width * scale,
+            this.height * scale
+        )
+        if (this.upperTile !== null)
+            this.upperTile.drawTile(ctx, x, y, scale)
     }
 }
