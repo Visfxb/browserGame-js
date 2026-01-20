@@ -2,10 +2,6 @@
 export class Map{
     chunks = []
 
-    constructor(ctx){
-        this.ctx = ctx
-    }
-
     async init(jsonMapSrc, tilesets){
         const res = await fetch(jsonMapSrc)
         const mapJson = await res.json()
@@ -27,7 +23,7 @@ export class Map{
                         const row = []
                         for (let x = 0; x < chunk.width; x++){
                             const gid = chunk.data[y * chunk.width + x]
-                            const tile = tilesets.getTile(gid)
+                            const tile = tilesets.getTileByGid(gid)
                             row.push(tile ? new Tile(tile) : null)
                         }
                         tiles.push(row)
@@ -45,7 +41,7 @@ export class Map{
                             const gid = chunk.data[y * chunk.width + x]
                             if (gid === 0) continue
 
-                            const tile = new Tile(tilesets.getTile(gid))
+                            const tile = new Tile(tilesets.getTileByGid(gid))
                             const baseTile = targetChunk.tiles[y][x]
 
                             if (baseTile === null)
@@ -61,7 +57,7 @@ export class Map{
     }
 
 
-    drawMap() {
+    drawMap(ctx) {
         let tileSize = 16
         let scale = 2
 
@@ -77,7 +73,7 @@ export class Map{
                     const worldX = (chunk.x + x + minNegChunkX) * tileSize * scale
                     const worldY = (chunk.y + y + minNegChunkY) * tileSize * scale
 
-                    tile.drawTile(this.ctx, worldX, worldY, scale)
+                    tile.drawTile(ctx, worldX, worldY, scale)
                 }
             }
         }

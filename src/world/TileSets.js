@@ -10,27 +10,27 @@ export class Tilesets{
             await new Promise(res => img.onload = res)
 
             this.tilesets.push({
+                name: tileset.name,
                 image: img,
                 firstgid: tileset.firstgid,
-                count: tileset.tilecount,
+                tilecount: tileset.tilecount,
                 tilewidth: tileset.tilewidth,
                 tileheight: tileset.tileheight,
                 columns: tileset.columns
             })
         }
     }
-    
-    getTileset(gid) {
+    getTilesetByGid(gid) {
         for (let i = 0; i < this.tilesets.length; i++){
             let tileset = this.tilesets[i]
-            if (tileset.firstgid <= gid && gid < tileset.firstgid + tileset.count)
+            if (tileset.firstgid <= gid && gid < tileset.firstgid + tileset.tilecount)
                 return tileset
         }
     }
-    getTile(gid){
+    getTileByGid(gid){
         if (gid === 0) return null
 
-        let tileset = this.getTileset(gid)
+        let tileset = this.getTilesetByGid(gid)
         let localId = gid - tileset.firstgid
 
         let x = localId % tileset.columns
@@ -46,5 +46,10 @@ export class Tilesets{
             type: tileset.type,
             solid: tileset.solid
         }
+    }
+    getTilesetByName(name){
+        for (let i = 0; i < this.tilesets.length; i++)
+            if (this.tilesets[i].name === name)
+                return this.tilesets[i]
     }
 }

@@ -1165,7 +1165,7 @@
         {
          "columns":7,
          "firstgid":1,
-         "image":"src/assets/Tiles/Cliff.png",
+         "image":"../src/assets/Tiles/Cliff.png",
          "imageheight":144,
          "imagewidth":112,
          "margin":0,
@@ -1178,7 +1178,7 @@
         {
          "columns":5,
          "firstgid":64,
-         "image":"src/assets/Tiles/Cliff-Water.png",
+         "image":"../src/assets/Tiles/Cliff-Water.png",
          "imageheight":96,
          "imagewidth":80,
          "margin":0,
@@ -1191,7 +1191,7 @@
         {
          "columns":3,
          "firstgid":94,
-         "image":"src/assets/Tiles/DeadGrass.png",
+         "image":"../src/assets/Tiles/DeadGrass.png",
          "imageheight":32,
          "imagewidth":48,
          "margin":0,
@@ -1204,7 +1204,7 @@
         {
          "columns":5,
          "firstgid":100,
-         "image":"src/assets/Tiles/Grass.png",
+         "image":"../src/assets/Tiles/Grass.png",
          "imageheight":16,
          "imagewidth":80,
          "margin":0,
@@ -1217,7 +1217,7 @@
         {
          "columns":5,
          "firstgid":105,
-         "image":"src/assets/Tiles/Shore.png",
+         "image":"../src/assets/Tiles/Shore.png",
          "imageheight":16,
          "imagewidth":80,
          "margin":0,
@@ -1230,7 +1230,7 @@
         {
          "columns":3,
          "firstgid":110,
-         "image":"src/assets/Tiles/TexturedGrass.png",
+         "image":"../src/assets/Tiles/TexturedGrass.png",
          "imageheight":32,
          "imagewidth":48,
          "margin":0,
@@ -1243,7 +1243,7 @@
         {
          "columns":8,
          "firstgid":116,
-         "image":"src/assets/Tiles/Winter.png",
+         "image":"../src/assets/Tiles/Winter.png",
          "imageheight":16,
          "imagewidth":128,
          "margin":0,
@@ -1252,7 +1252,8 @@
          "tilecount":8,
          "tileheight":16,
          "tilewidth":16
-        }],
+        }
+      ],
  "tilewidth":16,
  "type":"map",
  "version":"1.10",
