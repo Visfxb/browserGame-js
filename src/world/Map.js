@@ -1,4 +1,3 @@
-
 export class Map{
     chunks = []
 
@@ -53,7 +52,7 @@ export class Map{
                 }
             }
         }
-        console.log(this.chunks)
+        // console.log(this.chunks)
     }
 
 

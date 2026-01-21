@@ -1252,6 +1252,18 @@
          "tilecount":8,
          "tileheight":16,
          "tilewidth":16
+        },
+        {
+         "columns":6,
+         "firstgid":124,
+         "image":"../src/assets/Player.png",
+         "imageheight":320, "imagewidth":192,
+         "margin":0,
+         "name":"Player",
+         "spacing":0,
+         "tilecount":60,
+         "tileheight":32,
+         "tilewidth":32
         }
       ],
  "tilewidth":16,
