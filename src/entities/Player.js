@@ -15,12 +15,11 @@ const PlayerState = {
 
 
 export class Player {
-    constructor(x, y, tilesets) {
+    constructor(x, y, tilesets, camera) {
         this.x = x
         this.y = y
         this.speed = 3 // tiles/sec
         this.playerTileset = tilesets.getTilesetByName("Player")
-        this.scale = 2
 
         this.direction = Direction.DOWN
         this.state = PlayerState.IDLE
@@ -95,6 +94,9 @@ export class Player {
             }
         }
         this.currentAnimation = this.animations.idle[this.direction]
+
+        this.camera = camera
+        this.camera.follow(this)
     }
 
     update(dt, input) {
@@ -132,24 +134,24 @@ export class Player {
         this.currentAnimation.update(dt)
     }
 
-    drawPlayer(ctx) {
-        const tile = new Tile(this.currentAnimation.currentFrame)
-        const tileSize = 16
+    drawPlayer(ctx) { 
+        const tile = new Tile(this.currentAnimation.currentFrame) 
+        const tileSize = 16 
+        const screenX = this.camera.worldToScreen(this.x, this.y).x * tileSize
+        const screenY = this.camera.worldToScreen(this.x, this.y).y * tileSize
 
-        let minNegChunkX = 48
-        let minNegChunkY = 16
-        const worldX = (this.x + minNegChunkX) * tileSize * this.scale
-        const worldY = (this.y + minNegChunkY) * tileSize * this.scale
+        ctx.save()
+        ctx.translate(-tileSize / 2, -tileSize / 2)
+        if (this.direction === Direction.LEFT){ 
+            ctx.save() 
+            ctx.translate(screenX + tile.width, screenY) 
+            ctx.scale(-1, 1) 
+            tile.drawTile(ctx, 0, 0) 
+            ctx.restore() 
+        } 
+        else 
+            tile.drawTile(ctx, screenX, screenY)
 
-        if (this.direction === Direction.LEFT){
-            ctx.save()
-            ctx.translate(worldX + tile.width * this.scale, worldY)
-            console.log(tile.image)
-            ctx.scale(-1, 1)
-            tile.drawTile(ctx, 0, 0, this.scale)
-            ctx.restore()
-        }
-        else
-            tile.drawTile(ctx, worldX, worldY, this.scale)
+        ctx.restore()
     }
 }

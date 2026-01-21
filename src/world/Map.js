@@ -6,18 +6,19 @@ export class Map{
         const mapJson = await res.json()
         await tilesets.init(mapJson)
 
+        this.tileSize = mapJson.tilewidth
         const layers = mapJson.layers
 
         for (let layerIndex = 0; layerIndex < layers.length; layerIndex++){
-            const layer = layers[layerIndex]
 
+            const layer = layers[layerIndex]
             for (const chunk of layer.chunks){
+
                 let chunkIndex = this.chunks.findIndex(c => c.x === chunk.x && c.y === chunk.y)
 
                 // First layer
                 if (layerIndex === 0){
                     const tiles = []
-
                     for (let y = 0; y < chunk.height; y++){
                         const row = []
                         for (let x = 0; x < chunk.width; x++){
@@ -37,6 +38,7 @@ export class Map{
 
                     for (let y = 0; y < chunk.height; y++){
                         for (let x = 0; x < chunk.width; x++){
+
                             const gid = chunk.data[y * chunk.width + x]
                             if (gid === 0) continue
 
@@ -52,37 +54,39 @@ export class Map{
                 }
             }
         }
-        // console.log(this.chunks)
     }
 
 
-    drawMap(ctx) {
-        let tileSize = 16
-        let scale = 2
+    drawMap(ctx, camera) {
+        for (const chunk of this.chunks) { 
+            for (let y = 0; y < chunk.tiles.length; y++) { 
+                for (let x = 0; x < chunk.tiles[y].length; x++) { 
 
-        let minNegChunkX = 48
-        let minNegChunkY = 16
-
-        for (const chunk of this.chunks) {
-            for (let y = 0; y < chunk.tiles.length; y++) {
-                for (let x = 0; x < chunk.tiles[y].length; x++) {
-                    const tile = chunk.tiles[y][x]
+                    const tile = chunk.tiles[y][x] 
                     if (!tile) continue
 
-                    const worldX = (chunk.x + x + minNegChunkX) * tileSize * scale
-                    const worldY = (chunk.y + y + minNegChunkY) * tileSize * scale
+                    const worldX = chunk.x + x 
+                    const worldY = chunk.y + y 
+                    if (worldX + 1 <= camera.x || worldX >= camera.x + camera.width || 
+                        worldY + 1 <= camera.y || worldY >= camera.y + camera.height) 
+                        continue 
+                    
+                    const screenX = camera.worldToScreen(worldX, worldY).x
+                    const screenY = camera.worldToScreen(worldX, worldY).y
 
-                    tile.drawTile(ctx, worldX, worldY, scale)
-                }
-            }
+                    tile.drawTile(ctx, screenX * tile.width, screenY * tile.height) 
+                } 
+            } 
         }
     }
 }
 
 export class Chunk {
     constructor(tiles, x, y) {
-        this.x = x        // Can be negative
+        // Can be negative
+        this.x = x        
         this.y = y
+        
         this.tiles = tiles
     }
 }
@@ -100,7 +104,7 @@ export class Tile {
     addNextLayer(upperTile){
         this.upperTile = upperTile
     }
-    drawTile(ctx, x, y, scale){
+    drawTile(ctx, x, y){
         ctx.drawImage(
             this.image,
             this.sx,
@@ -109,10 +113,11 @@ export class Tile {
             this.height,
             x,
             y,
-            this.width * scale,
-            this.height * scale
+            this.width,
+            this.height
         )
+        // ctx.strokeRect(x, y, this.width, this.height)
         if (this.upperTile !== null)
-            this.upperTile.drawTile(ctx, x, y, scale)
+            this.upperTile.drawTile(ctx, x, y)
     }
 }

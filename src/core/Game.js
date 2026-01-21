@@ -26,6 +26,10 @@ export class Game {
     }
 
     render() {
+        this.ctx.save()
+        this.ctx.translate(64, 64)
+        this.ctx.scale(2, 2)
         this.world.drawWorld(this.ctx)
+        this.ctx.restore()
     }
 }
