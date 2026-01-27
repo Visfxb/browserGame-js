@@ -35,4 +35,17 @@ export class World{
         for (const entitiy of this.entities)
             this.entitiy.draw()
     }
+
+    /** Save-load */
+    serialize() {
+        return {
+            mapId: this.map.id,
+            player: this.player.serialize(),
+            camera: this.player.camera.serialize()
+        }
+    }
+    deserialize(data) {
+        this.player.deserialize(data.player)
+        this.player.camera.deserialize(data.camera)
+    }
 }

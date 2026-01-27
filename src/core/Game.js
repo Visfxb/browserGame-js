@@ -1,8 +1,13 @@
+import { SCALE } from "../main.js"
+
 export class Game {
-    constructor(ctx, world, input) {
+    constructor(ctx, world, input, ui) {
         this.ctx = ctx
         this.world = world
         this.input = input
+        this.ui = ui
+
+        this.isPaused = false
     }
 
     start() {
@@ -22,14 +27,28 @@ export class Game {
     }
 
     update(dt) {
-        this.world.update(dt, this.input)
+        if (!this.isPaused)
+            this.world.update(dt, this.input)
+
+        this.ui.update(dt, this.input)
+        this.input.update()
     }
 
     render() {
         this.ctx.save()
-        this.ctx.translate(64, 64)
-        this.ctx.scale(2, 2)
+        this.ctx.scale(SCALE, SCALE)
         this.world.drawWorld(this.ctx)
         this.ctx.restore()
+        this.ui.draw(this.ctx)
+    }
+
+    /** Save-load */
+    serialize() {
+        return {
+            world: this.world.serialize()
+        }
+    }
+    deserialize(data) {
+        this.world.deserialize(data.world)
     }
 }

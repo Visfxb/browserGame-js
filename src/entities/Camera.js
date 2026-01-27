@@ -1,8 +1,8 @@
 export class Camera{ 
     constructor(viewRX, viewRY){ 
         this.x = 0 
-        this.y = 0 // in tiles 
-        this.width = viewRX * 2 + 1 
+        this.y = 0
+        this.width = viewRX * 2 + 1 // in tiles 
         this.height = viewRY * 2 + 1 
     } 
     follow(target) { 
@@ -14,5 +14,17 @@ export class Camera{
             x: worldX - this.x, 
             y: worldY - this.y 
         } 
-    } 
+    }
+
+    /** Save-load */
+    serialize() {
+        return {
+            x: this.x,
+            y: this.y
+        }
+    }
+    deserialize(data) {
+        this.x = data.x
+        this.y = data.y
+    }
 }

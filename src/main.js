@@ -5,21 +5,44 @@ import { World } from "./world/World.js";
 import { Input } from "./core/Input.js";
 import { Player } from "./entities/Player.js";
 import { Camera } from "./entities/Camera.js";
+import { EventBus } from "./core/EventBus.js";
+import { UIManager, initEvents } from "./ui/UIManager.js";
+import { PauseMenu } from "./UI/UIWindow/PauseMenu.js";
 
+export const SCALE = 2
+const TILE_SIZE = 16
+
+/** Init cxt */
 let canvas = document.getElementById("canvas")
 let ctx = canvas.getContext("2d")
-ctx.imageSmoothingEnabled = false
 
+/** Init map */
 let tilesets = new Tilesets()
 let map = new Map()
 await map.init("../src/assets/map.json", tilesets)
 
-let camera = new Camera(8, 6)
+/** Init player */
+let camera = new Camera(10, 7)
 let player = new Player(0, 0, tilesets, camera)
 
+/** Init UI */
+let eventBus = new EventBus()
+let ui = new UIManager()
+ui.register(new PauseMenu(ctx, eventBus))
+
+/** Init game and events */
 let game = new Game(
     ctx, 
     new World(map, player), 
-    new Input()
+    new Input(),
+    ui
 )
+initEvents(ui, game, eventBus)
+
+/** Canvas settings */
+canvas.width  = camera.width  * TILE_SIZE * SCALE
+canvas.height = camera.height * TILE_SIZE * SCALE
+ctx.imageSmoothingEnabled = false
+
+
 game.start()

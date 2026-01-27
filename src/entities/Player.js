@@ -12,13 +12,13 @@ const PlayerState = {
     IDLE: "idle",
     WALK: "walk"
 }
-
+const speed = 3 // tiles/sec
 
 export class Player {
     constructor(x, y, tilesets, camera) {
         this.x = x
         this.y = y
-        this.speed = 3 // tiles/sec
+        this.currentSpeed = speed
         this.playerTileset = tilesets.getTilesetByName("Player")
 
         this.direction = Direction.DOWN
@@ -66,7 +66,7 @@ export class Player {
                     tilesets.getTileByGid(21 + this.playerTileset.firstgid),
                     tilesets.getTileByGid(22 + this.playerTileset.firstgid),
                     tilesets.getTileByGid(23 + this.playerTileset.firstgid)
-                ], 0.2),
+                ], 0.17 / (this.currentSpeed / speed)),
                 [Direction.LEFT]: new Animation([
                     tilesets.getTileByGid(24 + this.playerTileset.firstgid),
                     tilesets.getTileByGid(25 + this.playerTileset.firstgid),
@@ -74,7 +74,7 @@ export class Player {
                     tilesets.getTileByGid(27 + this.playerTileset.firstgid),
                     tilesets.getTileByGid(28 + this.playerTileset.firstgid),
                     tilesets.getTileByGid(29 + this.playerTileset.firstgid)
-                ], 0.2),
+                ], 0.17 / (this.currentSpeed / speed)),
                 [Direction.RIGHT]: new Animation([
                     tilesets.getTileByGid(24 + this.playerTileset.firstgid),
                     tilesets.getTileByGid(25 + this.playerTileset.firstgid),
@@ -82,7 +82,7 @@ export class Player {
                     tilesets.getTileByGid(27 + this.playerTileset.firstgid),
                     tilesets.getTileByGid(28 + this.playerTileset.firstgid),
                     tilesets.getTileByGid(29 + this.playerTileset.firstgid)
-                ], 0.2),
+                ], 0.17 / (this.currentSpeed / speed)),
                 [Direction.UP]: new Animation([
                     tilesets.getTileByGid(30 + this.playerTileset.firstgid),
                     tilesets.getTileByGid(31 + this.playerTileset.firstgid),
@@ -90,7 +90,7 @@ export class Player {
                     tilesets.getTileByGid(33 + this.playerTileset.firstgid),
                     tilesets.getTileByGid(34 + this.playerTileset.firstgid),
                     tilesets.getTileByGid(35 + this.playerTileset.firstgid)
-                ], 0.2)
+                ], 0.17 / (this.currentSpeed / speed))
             }
         }
         this.currentAnimation = this.animations.idle[this.direction]
@@ -101,24 +101,27 @@ export class Player {
 
     update(dt, input) {
         let moved = false
+        
+        if (input.isDown("ShiftLeft") || input.isDown("ShiftRight")) this.currentSpeed = speed * 1.5
+        else this.currentSpeed = speed
 
         if (input.isDown("KeyW")) {
-            this.y -= this.speed * dt
+            this.y -= this.currentSpeed * dt
             this.direction = Direction.UP
             moved = true
         }
         if (input.isDown("KeyS")) {
-            this.y += this.speed * dt
+            this.y += this.currentSpeed * dt
             this.direction = Direction.DOWN
             moved = true
         }
         if (input.isDown("KeyA")) {
-            this.x -= this.speed * dt
+            this.x -= this.currentSpeed * dt
             this.direction = Direction.LEFT
             moved = true
         }
         if (input.isDown("KeyD")) {
-            this.x += this.speed * dt
+            this.x += this.currentSpeed * dt
             this.direction = Direction.RIGHT
             moved = true
         }
@@ -153,5 +156,21 @@ export class Player {
             tile.drawTile(ctx, screenX, screenY)
 
         ctx.restore()
+    }
+
+    /** Save-load */
+    serialize() {
+        return {
+            x: this.x,
+            y: this.y,
+            direction: this.direction,
+            state: this.state
+        }
+    }
+    deserialize(data) {
+        this.x = data.x
+        this.y = data.y
+        this.direction = data.direction
+        this.state = data.state
     }
 }
