@@ -97,31 +97,39 @@ export class Player {
 
         this.camera = camera
         this.camera.follow(this)
-    }
 
-    update(dt, input) {
+        this.hitbox = {
+            // tiles
+            x: 0.1,
+            y: 0.3,
+            width: 0.8,
+            height: 0.7
+        }
+
+    }
+    update(dt, input, map) {
         let moved = false
         
         if (input.isDown("ShiftLeft") || input.isDown("ShiftRight")) this.currentSpeed = speed * 1.5
         else this.currentSpeed = speed
 
         if (input.isDown("KeyW")) {
-            this.y -= this.currentSpeed * dt
+            this.tryMove(0, -this.currentSpeed * dt, map)
             this.direction = Direction.UP
             moved = true
         }
         if (input.isDown("KeyS")) {
-            this.y += this.currentSpeed * dt
+            this.tryMove(0, this.currentSpeed * dt, map)
             this.direction = Direction.DOWN
             moved = true
         }
         if (input.isDown("KeyA")) {
-            this.x -= this.currentSpeed * dt
+            this.tryMove(-this.currentSpeed * dt, 0, map)
             this.direction = Direction.LEFT
             moved = true
         }
         if (input.isDown("KeyD")) {
-            this.x += this.currentSpeed * dt
+            this.tryMove(this.currentSpeed * dt, 0, map)
             this.direction = Direction.RIGHT
             moved = true
         }
@@ -136,7 +144,6 @@ export class Player {
 
         this.currentAnimation.update(dt)
     }
-
     drawPlayer(ctx) { 
         const tile = new Tile(this.currentAnimation.currentFrame) 
         const tileSize = 16 
@@ -156,8 +163,90 @@ export class Player {
             tile.drawTile(ctx, screenX, screenY)
 
         ctx.restore()
+
+        // ctx.fillStyle = "rgba(255, 0, 0, 0.4)"
+        // ctx.fillRect(
+        //     screenX + this.hitbox.x * 16,
+        //     screenY + this.hitbox.y * 16,
+        //     this.hitbox.width * 16,
+        //     this.hitbox.height * 16
+        // )
     }
 
+    /** Checking collisions */
+    getTouchedTiles(x, y, hitbox, map) {
+        const left   = Math.floor(x + hitbox.x)
+        const right  = Math.floor(x + hitbox.x + hitbox.width)
+        const top    = Math.floor(y + hitbox.y)
+        const bottom = Math.floor(y + hitbox.y + hitbox.height)
+
+        const colliders = []
+
+        for (let y = top; y <= bottom; y++) {
+            for (let x = left; x <= right; x++) {
+                const tile = map.getTileByXY(x, y)
+                if (!tile || !tile.colliders || tile.colliders.length === 0) continue
+
+                for (const collider of tile.colliders) {
+                    colliders.push({
+                        x: x + collider.x / tile.width,
+                        y: y + collider.y / tile.height,
+                        width: collider.width / tile.width,
+                        height: collider.height / tile.height
+                    })
+                }
+            }
+        }
+
+        return colliders
+    }
+    tryMove(dx, dy, map) {
+        // x
+        if (dx !== 0) {
+            let blocked = false
+            const nextX = this.x + dx
+            const colliders = this.getTouchedTiles(
+                nextX,
+                this.y,
+                this.hitbox,
+                map
+            )
+
+            for (const collider of colliders) {
+                if (nextX + this.hitbox.x < collider.x + collider.width &&
+                    nextX + this.hitbox.x + this.hitbox.width > collider.x &&
+                    this.y + this.hitbox.y < collider.y + collider.height &&
+                    this.y + this.hitbox.y + this.hitbox.height > collider.y) {
+                    blocked = true
+                    break
+                }
+            }
+            if (!blocked) this.x = nextX
+        }
+
+        // y
+        if (dy !== 0) {
+            let blocked = false
+            const nextY = this.y + dy
+            const colliders = this.getTouchedTiles(
+                this.x,
+                nextY,
+                this.hitbox,
+                map
+            )
+
+            for (const collider of colliders) {
+                if (this.x + this.hitbox.x < collider.x + collider.width &&
+                    this.x + this.hitbox.x + this.hitbox.width > collider.x &&
+                    nextY + this.hitbox.y < collider.y + collider.height &&
+                    nextY + this.hitbox.y + this.hitbox.height > collider.y) {
+                    blocked = true
+                    break
+                }
+            }
+            if (!blocked) this.y = nextY
+        }
+    }
     /** Save-load */
     serialize() {
         return {

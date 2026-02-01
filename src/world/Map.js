@@ -74,9 +74,23 @@ export class Map{
                     const screenX = camera.worldToScreen(worldX, worldY).x
                     const screenY = camera.worldToScreen(worldX, worldY).y
 
-                    tile.drawTile(ctx, screenX * tile.width, screenY * tile.height) 
+                    tile.drawTile(ctx, screenX * tile.width, screenY * tile.height)
                 } 
             } 
+        }
+    }
+
+    getTileByXY(x, y){
+        for (let chunk of this.chunks){
+            for (let i = 0; i < chunk.tiles.length; i++){
+                for (let j = 0; j < chunk.tiles[i].length; j++){
+                    if (chunk.x + j === x && chunk.y + i === y){
+                        let tile = chunk.tiles[i][j]
+                        while (tile.upperTile !== null) {tile = tile.upperTile}
+                        return tile
+                    }
+                }
+            }
         }
     }
 }
@@ -92,7 +106,7 @@ export class Chunk {
 }
 
 export class Tile {
-    constructor({ gid, image, sx, sy, width, height }) {
+    constructor({ gid, image, sx, sy, width, height, colliders }) {
         this.gid = gid
         this.image = image
         this.sx = sx
@@ -100,6 +114,8 @@ export class Tile {
         this.width = width
         this.height = height
         this.upperTile = null
+
+        this.colliders = colliders
     }
     addNextLayer(upperTile){
         this.upperTile = upperTile
@@ -116,8 +132,10 @@ export class Tile {
             this.width,
             this.height
         )
-        // ctx.strokeRect(x, y, this.width, this.height)
         if (this.upperTile !== null)
             this.upperTile.drawTile(ctx, x, y)
+
+        // ctx.strokeRect(x, y, this.width, this.height)
+        // if (this.hasCollision()) console.log(this.collide)
     }
 }

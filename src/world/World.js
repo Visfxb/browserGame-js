@@ -8,7 +8,7 @@ export class World{
         entities.push(...entities)
     }
     update(dt, input){
-        this.player.update(dt, input)
+        this.player.update(dt, input, this.map)
         this.player.camera.follow(this.player)
 
         for (const entity of this.entities)

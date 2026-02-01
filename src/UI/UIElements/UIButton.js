@@ -21,7 +21,13 @@ export class UIButton extends UIElement {
     }
 
     draw(ctx) {
-        ctx.fillStyle = this.hover ? "#666" : "#444"
+        if (this.hover){
+            ctx.fillStyle = "#666"
+        }
+        else{
+            ctx.fillStyle = "#444"
+        }
+        
         ctx.fillRect(this.screenX, this.screenY, this.width, this.height)
 
         ctx.fillStyle = "white"

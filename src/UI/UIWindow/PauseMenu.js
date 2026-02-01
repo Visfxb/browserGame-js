@@ -1,6 +1,5 @@
 import { UIWindow } from "./UIWindow.js"
 import { UIButton } from "../UIElements/UIButton.js"
-import { UIText } from "../UIElements/UIText.js"
 
 export class PauseMenu extends UIWindow {
     constructor(ctx, eventBus) {

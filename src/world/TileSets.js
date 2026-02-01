@@ -16,7 +16,8 @@ export class Tilesets{
                 tilecount: tileset.tilecount,
                 tilewidth: tileset.tilewidth,
                 tileheight: tileset.tileheight,
-                columns: tileset.columns
+                columns: tileset.columns,
+                tiles: tileset.tiles
             })
         }
     }
@@ -44,7 +45,8 @@ export class Tilesets{
             width: tileset.tilewidth,
             height: tileset.tileheight,
             type: tileset.type,
-            solid: tileset.solid
+            solid: tileset.solid,
+            colliders: this.colliders = tileset.tiles?.find((element) => element?.id === localId)?.objectgroup?.objects || []
         }
     }
     getTilesetByName(name){

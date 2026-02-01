@@ -23,7 +23,12 @@ await map.init("../src/assets/map.json", tilesets)
 
 /** Init player */
 let camera = new Camera(10, 7)
-let player = new Player(0, 0, tilesets, camera)
+let player = new Player(-37, -11, tilesets, camera)
+
+/** Canvas settings */
+canvas.width  = camera.width  * TILE_SIZE * SCALE
+canvas.height = camera.height * TILE_SIZE * SCALE
+ctx.imageSmoothingEnabled = false
 
 /** Init UI */
 let eventBus = new EventBus()
@@ -38,11 +43,5 @@ let game = new Game(
     ui
 )
 initEvents(ui, game, eventBus)
-
-/** Canvas settings */
-canvas.width  = camera.width  * TILE_SIZE * SCALE
-canvas.height = camera.height * TILE_SIZE * SCALE
-ctx.imageSmoothingEnabled = false
-
 
 game.start()
