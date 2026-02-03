@@ -184,6 +184,8 @@ export class Player {
 
         for (let y = top; y <= bottom; y++) {
             for (let x = left; x <= right; x++) {
+                if (map.getTileByXY(x, y) === null) return null
+
                 const tile = map.getTileByXY(x, y)
                 if (!tile || !tile.colliders || tile.colliders.length === 0) continue
 
@@ -211,17 +213,18 @@ export class Player {
                 this.hitbox,
                 map
             )
-
-            for (const collider of colliders) {
-                if (nextX + this.hitbox.x < collider.x + collider.width &&
-                    nextX + this.hitbox.x + this.hitbox.width > collider.x &&
-                    this.y + this.hitbox.y < collider.y + collider.height &&
-                    this.y + this.hitbox.y + this.hitbox.height > collider.y) {
-                    blocked = true
-                    break
+            if (colliders !== null) {
+                for (const collider of colliders) {
+                    if (nextX + this.hitbox.x < collider.x + collider.width &&
+                        nextX + this.hitbox.x + this.hitbox.width > collider.x &&
+                        this.y + this.hitbox.y < collider.y + collider.height &&
+                        this.y + this.hitbox.y + this.hitbox.height > collider.y) {
+                        blocked = true
+                        break
+                    }
                 }
-            }
             if (!blocked) this.x = nextX
+            }
         }
 
         // y
@@ -235,16 +238,18 @@ export class Player {
                 map
             )
 
-            for (const collider of colliders) {
-                if (this.x + this.hitbox.x < collider.x + collider.width &&
-                    this.x + this.hitbox.x + this.hitbox.width > collider.x &&
-                    nextY + this.hitbox.y < collider.y + collider.height &&
-                    nextY + this.hitbox.y + this.hitbox.height > collider.y) {
-                    blocked = true
-                    break
+            if (colliders !== null){
+                for (const collider of colliders) {
+                    if (this.x + this.hitbox.x < collider.x + collider.width &&
+                        this.x + this.hitbox.x + this.hitbox.width > collider.x &&
+                        nextY + this.hitbox.y < collider.y + collider.height &&
+                        nextY + this.hitbox.y + this.hitbox.height > collider.y) {
+                        blocked = true
+                        break
+                    }
                 }
+                if (!blocked) this.y = nextY
             }
-            if (!blocked) this.y = nextY
         }
     }
     /** Save-load */

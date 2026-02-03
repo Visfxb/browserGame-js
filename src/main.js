@@ -20,7 +20,7 @@ let ctx = canvas.getContext("2d")
 let tilesets = new Tilesets()
 let map = new Map()
 await map.init("../src/assets/map.json", tilesets)
-
+// console.log(map.getTileByXY(-42, -11))
 /** Init player */
 let camera = new Camera(10, 7)
 let player = new Player(-37, -11, tilesets, camera)

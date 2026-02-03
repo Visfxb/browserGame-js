@@ -86,12 +86,14 @@ export class Map{
                 for (let j = 0; j < chunk.tiles[i].length; j++){
                     if (chunk.x + j === x && chunk.y + i === y){
                         let tile = chunk.tiles[i][j]
+                        if (tile === null) continue
                         while (tile.upperTile !== null) {tile = tile.upperTile}
                         return tile
                     }
                 }
             }
         }
+        return null
     }
 }
 
